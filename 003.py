@@ -3,6 +3,7 @@ import nmap
 import sys
 import requests
 import random
+import ipwhois
 
 foundone = False
 
@@ -14,12 +15,12 @@ while foundone == False:
 		validated = False
 		while validated == False:
 			ip = str(random.randint(0, 255))+"."+str(random.randint(0, 255))+"."+str(random.randint(0, 255))+"."+str(random.randint(0, 255))
-			ipr = requests.get('http://ip-api.com/json/'+ip).json()
-			if "reserved range" not in str(ipr):
+			try:
+				ipwhois.IPWhois(ip)
 				validated = True
-
+			except Exception:
+				pass
 	print("Using ip: "+ip)
-	print(ipr)
 	address = ip.split(".")
 
 	print("Running nmap...")
@@ -42,8 +43,9 @@ while foundone == False:
 
 	print("Runnning host lookup...")
 	for a in range(0, len(hostgrouped), 3):
-		result = requests.get('http://ip-api.com/json/'+hostgrouped[a])
-		hostgrouped[a+2].append(result.json())
+		ipw = ipwhois.IPWhois(hostgrouped[a])
+		result = ipw.lookup_rdap()
+		hostgrouped[a+2].append(result)
 
 	if len(hostgrouped) > 0:
 		print("")
