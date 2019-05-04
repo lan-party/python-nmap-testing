@@ -5,18 +5,18 @@ import requests
 import random
 import ipwhois
 
+# Continues looping until an active host is found
 foundone = False
-
 while foundone == False:
 	if len(sys.argv) > 1:
 		ip = sys.argv[1]
-		foundone = True
+		foundone = True # Stops loop if an address is provided
 	else:
-		validated = False
+		validated = False # Generates random public ipv4 address
 		while validated == False:
 			ip = str(random.randint(0, 255))+"."+str(random.randint(0, 255))+"."+str(random.randint(0, 255))+"."+str(random.randint(0, 255))
 			try:
-				ipwhois.IPWhois(ip)
+				ipwhois.IPWhois(ip) # Switched to ipwhois lib
 				validated = True
 			except Exception:
 				pass
@@ -25,7 +25,7 @@ while foundone == False:
 
 	print("Running nmap...")
 	nm = nmap.PortScanner()
-	nm.scan(address[0]+"."+address[1]+"."+address[2]+".0/24", arguments='-F')
+	nm.scan(address[0]+"."+address[1]+"."+address[2]+".0/24", arguments='-F') # Fast scan option for nmap now
 	nm.command_line()
 	nm.scaninfo()
 	nm.all_hosts()
@@ -54,7 +54,7 @@ while foundone == False:
 			print("\n".join(hostgrouped[a+1]))
 			print(str(hostgrouped[a+2]))
 			print("----------")
-		a = input("Find more [Y/n]? ") or "y"
+		a = input("Find more [Y/n]? ") or "y" # Defaults to yes. stops loop if no
 		if("n" in a or "N" in a):
 			foundone = True
 	else:
