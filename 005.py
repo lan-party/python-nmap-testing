@@ -7,10 +7,8 @@ import ipwhois
 import _thread
 import time
 
-
+# Threads!
 thread_count = 10
-
-
 def scan():
 	foundone = False
 
@@ -67,8 +65,8 @@ def scan():
 			print(block+" no active hosts found.\n")
 
 	
-for a in range(0, thread_count):
-	time.sleep(1)
+for a in range(0, thread_count): 
+	time.sleep(1) # Assuming the numbers won't be as random otherwise
 	_thread.start_new_thread(scan, ())
 
 while 1:
