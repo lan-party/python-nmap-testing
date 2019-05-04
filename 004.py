@@ -8,6 +8,7 @@ import os
 foundone = False
 ispcount = {}
 
+# A fast and dirty way to visualized ISP fequency
 while foundone == False:
 	validated = False
 	while validated == False:
