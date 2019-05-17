@@ -12,7 +12,7 @@ import base64
 
 # Threads!
 thread_count = 15
-recordserver = "http://scan.landonburress.com";
+recordserver = "http://localhost";
 dorks = str(requests.get(recordserver+'/wordlist.php', {'text': True}).content).splitlines()
 def scan():
 	foundone = False
