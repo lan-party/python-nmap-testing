@@ -1,4 +1,3 @@
-#!/usr/bin/python
 import nmap
 import sys
 import requests
@@ -11,10 +10,11 @@ import socket
 import base64
 
 # Threads!
-thread_count = 15
-recordserver = "http://localhost";
-dorks = str(requests.get(recordserver+'/wordlist.php', {'text': True}).content).splitlines()
-def scan():
+scan_thread_count = 10
+recheck_thread_count = 5
+recordserver = "http://scan.landonburress.com";
+dorks = requests.get(recordserver+'/wordlist.php', {'text': True}).content.decode('ascii').splitlines()
+def scan(threadtype, threadid):
 	foundone = False
 
 	while foundone == False:
@@ -24,14 +24,20 @@ def scan():
 		else:
 			validated = False
 			while validated == False:
-				ip = str(random.randint(0, 255))+"."+str(random.randint(0, 255))+"."+str(random.randint(0, 255))+"."+str(random.randint(0, 255))
-				address = ip.split(".")
-				block = address[0]+"."+address[1]+"."+address[2]+".0/24"
-				try:
-					ipwhois.IPWhois(ip)
+				if threadtype == 'scan':
+					ip = str(random.randint(0, 255))+"."+str(random.randint(0, 255))+"."+str(random.randint(0, 255))+"."+str(random.randint(0, 255))
+					address = ip.split(".")
+					block = address[0]+"."+address[1]+"."+address[2]+".0/24"
+					try:
+						ipwhois.IPWhois(ip)
+						validated = True
+					except Exception:
+						pass
+				else:
+					block = requests.get(recordserver+'/recheck.php', {'offset': threadid}).content.decode('ascii')
+					address = block.split(".")
+					address[0]+"."+address[1]+"."+str(random.randint(0, 255))+"."+str(random.randint(0, 255))
 					validated = True
-				except Exception:
-					pass
 		print("Using ip range: "+block)
 		nm = nmap.PortScanner()
 		nm.scan(block, arguments='-F')
@@ -63,7 +69,7 @@ def scan():
 							if dorks[b].lower() in response.lower():
 								hostgrouped[hostgrouped.index(resultsplit[0])+3] = True
 								break
-						response = base64.encodestring(response.encode('ascii')).decode('ascii')
+						response = base64.encodebytes(response.encode('ascii')).decode('ascii')
 					except Exception as e:
 						response = ""
 					hostgrouped[hostgrouped.index(resultsplit[0])+1].append(results[a] + response)
@@ -80,6 +86,7 @@ def scan():
 					print("\n".join(hostgrouped[a+1]))
 					print(str(hostgrouped[a+2]))
 					print(str(hostgrouped[a+3]))
+					print("requests.post('"+recordserver+"/run.php', {'ip': '"+str(hostgrouped[a])+"', 'whois': '"+json.dumps(hostgrouped[a+2])+"', 'nmap': '"+json.dumps(hostgrouped[a+1])+"'})")
 					print("----------")
 					requests.post(recordserver+'/run.php', {'ip': str(hostgrouped[a]), 'whois': json.dumps(hostgrouped[a+2]), 'nmap': json.dumps(hostgrouped[a+1])})
 			print(block+" done.")
@@ -90,9 +97,13 @@ def scan():
 			print(block+" no active hosts found.\n")
 
 
-for a in range(0, thread_count):
+for a in range(0, scan_thread_count):
 	time.sleep(1) # Assuming the numbers won't be as random otherwise
-	_thread.start_new_thread(scan, ())
+	_thread.start_new_thread(scan, ('scan', a, ))
+
+for a in range(0, recheck_thread_count):
+	time.sleep(1)
+	_thread.start_new_thread(scan, ('recheck', a, ))
 
 while 1:
 	pass
