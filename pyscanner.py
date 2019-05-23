@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import nmap
 import sys
 import requests
@@ -9,9 +10,8 @@ import json
 import socket
 import base64
 
-# Threads!
 scan_thread_count = 10
-recheck_thread_count = 5
+recheck_thread_count = 1
 recordserver = "http://scan.landonburress.com";
 dorks = requests.get(recordserver+'/wordlist.php', {'text': True}).content.decode('ascii').splitlines()
 def scan(threadtype, threadid):
@@ -35,8 +35,6 @@ def scan(threadtype, threadid):
 						pass
 				else:
 					block = requests.get(recordserver+'/recheck.php', {'offset': threadid}).content.decode('ascii')
-					address = block.split(".")
-					address[0]+"."+address[1]+"."+str(random.randint(0, 255))+"."+str(random.randint(0, 255))
 					validated = True
 		print("Using ip range: "+block)
 		nm = nmap.PortScanner()
@@ -82,10 +80,6 @@ def scan(threadtype, threadid):
 			print("")
 			for a in range(0, len(hostgrouped), 4) :
 				if hostgrouped[a+3]:
-					print(str(hostgrouped[a]))
-					print("\n".join(hostgrouped[a+1]))
-					print(str(hostgrouped[a+2]))
-					print(str(hostgrouped[a+3]))
 					print("requests.post('"+recordserver+"/run.php', {'ip': '"+str(hostgrouped[a])+"', 'whois': '"+json.dumps(hostgrouped[a+2])+"', 'nmap': '"+json.dumps(hostgrouped[a+1])+"'})")
 					print("----------")
 					requests.post(recordserver+'/run.php', {'ip': str(hostgrouped[a]), 'whois': json.dumps(hostgrouped[a+2]), 'nmap': json.dumps(hostgrouped[a+1])})
@@ -95,6 +89,9 @@ def scan(threadtype, threadid):
 				foundone = True
 		else:
 			print(block+" no active hosts found.\n")
+			if threadtype == 'recheck':
+				print("requests.get(recordserver+'/prune.php', {'block': block})")
+				requests.get(recordserver+'/prune.php', {'block': block})
 
 
 for a in range(0, scan_thread_count):
