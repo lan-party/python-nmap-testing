@@ -1,0 +1,58 @@
+mysql> use pyscanner;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> show tables;
++---------------------+
+| Tables_in_pyscanner |
++---------------------+
+| hosts               |
+| services            |
+| users               |
+| wordlist            |
++---------------------+
+4 rows in set (0.00 sec)
+
+mysql> describe hosts;
++-------+------------------+------+-----+---------+----------------+
+| Field | Type             | Null | Key | Default | Extra          |
++-------+------------------+------+-----+---------+----------------+
+| id    | int(10) unsigned | NO   | PRI | NULL    | auto_increment |
+| ip    | varchar(32)      | NO   |     | NULL    |                |
+| whois | varchar(4096)    | YES  |     | NULL    |                |
++-------+------------------+------+-----+---------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> describe services;
++------------+---------------+------+-----+-------------------+-------+
+| Field      | Type          | Null | Key | Default           | Extra |
++------------+---------------+------+-----+-------------------+-------+
+| port       | int(32)       | NO   |     | NULL              |       |
+| service    | varchar(255)  | YES  |     | NULL              |       |
+| status     | varchar(255)  | YES  |     | NULL              |       |
+| nmap_dump  | varchar(6096) | YES  |     | NULL              |       |
+| check_date | timestamp     | NO   |     | CURRENT_TIMESTAMP |       |
+| ip         | varchar(32)   | NO   |     | NULL              |       |
+| response   | varchar(6096) | YES  |     | NULL              |       |
++------------+---------------+------+-----+-------------------+-------+
+7 rows in set (0.00 sec)
+
+describe users;
++---------------------+---------------+------+-----+-------------------+----------------+
+| Field               | Type          | Null | Key | Default           | Extra          |
++---------------------+---------------+------+-----+-------------------+----------------+
+| id                  | int(11)       | NO   | PRI | NULL              | auto_increment |
+| email               | varchar(255)  | NO   | UNI | NULL              |                |
+| password            | varchar(2048) | NO   |     | NULL              |                |
+| loginkey            | varchar(255)  | YES  |     | NULL              |                |
+| loginkey_expiration | datetime      | YES  |     | CURRENT_TIMESTAMP |                |
+| api_token           | varchar(255)  | NO   |     | NULL              |                |
+| api_credits         | int(11)       | YES  |     | 10                |                |
+| invites             | int(11)       | YES  |     | 5                 |                |
+| invitekey           | varchar(255)  | YES  |     | NULL              |                |
+| name                | varchar(255)  | YES  |     | NULL              |                |
+| verified            | tinyint(1)    | YES  |     | 0                 |                |
+| onboard             | int(11)       | YES  |     | 0                 |                |
++---------------------+---------------+------+-----+-------------------+----------------+
+12 rows in set (0.00 sec)
